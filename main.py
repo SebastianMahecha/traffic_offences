@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import config.db as db
 import routes.user as user_routes
+import uvicorn
 
 app = FastAPI()
 
@@ -15,4 +16,5 @@ def on_startup():
 async def root():
     return {"message": "Hello World"}
 
-
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8001, reload=True)
