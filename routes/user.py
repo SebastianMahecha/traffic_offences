@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlmodel import Session
 from typing import List
 import httpmodels.user as user_httpmodels
+import httpmodels.general as general_httpmodels
 import services.user as user_services
 import config.db as db
 from dataclasses import asdict
@@ -32,7 +33,7 @@ def get_users(
     response_model=user_httpmodels.UserResponse,
     responses={
         200: {"description": "User found", "content":  {"application/json": {"example":{"status":"success","message":"","user":{"first_name":"Juan Sebastian","id":1,"last_name":"Mahecha Macias","address":"Ibague","phone":"3108513655","email":"juanmahecha.macias@gmail.com"}}}}},
-        404: {"description": "User not found", "content":  {"application/json": {"example":{"status":"error","message":"User not found.","user":None}}}},
+        400: {"description": "User not found", "content":  {"application/json": {"example":{"status":"error","message":"User not found.","user":None}}}},
 
     }
 )
@@ -57,7 +58,7 @@ def get_user(
     response_model = user_httpmodels.UserResponse,
     responses={
         200: {"description": "User found", "content":  {"application/json": {"example":{"status":"success","message":"","user":{"first_name":"Juan Sebastian","id":1,"last_name":"Mahecha Macias","address":"Ibague","phone":"3108513655","email":"juanmahecha.macias@gmail.com"}}}}},
-        404: {"description": "User not found", "content":  {"application/json": {"example":{"status":"error","message":"User not found.","user":None}}}},
+        400: {"description": "User not found", "content":  {"application/json": {"example":{"status":"error","message":"User not found.","user":None}}}},
 
     }
 )
@@ -65,7 +66,7 @@ def create_user(
     user_request: user_httpmodels.UserRequest = Body(
         ..., 
         example={
-           "first_name": "Juan Sebastian",
+            "first_name": "Juan Sebastian",
             "last_name": "Mahecha Macias",
             "address": "Ibague - Tolima",
             "phone": "3108513655",
@@ -77,6 +78,66 @@ def create_user(
     
     response = user_services.create_user(session, user_request)   
     if not response.user:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            content=asdict(response)
+        )
+    return JSONResponse(
+            status_code=status.HTTP_200_OK, 
+            content=asdict(response)
+    )
+
+@router.put(
+    "/user/{user_id}", 
+    response_model = user_httpmodels.UserResponse,
+    responses={
+        200: {"description": "User found", "content":  {"application/json": {"example":{"status":"success","message":"","user":{"first_name":"Juan Sebastian","id":1,"last_name":"Mahecha Macias","address":"Ibague","phone":"3108513655","email":"juanmahecha.macias@gmail.com"}}}}},
+        400: {"description": "User not found", "content":  {"application/json": {"example":{"status":"error","message":"User not found.","user":None}}}},
+    }
+)
+def update_user(
+    user_id: int,
+    user_request: user_httpmodels.UserRequest = Body(
+        ..., 
+        example={
+            "first_name": "Juan Sebastian",
+            "last_name": "Mahecha Macias",
+            "address": "Ibague - Tolima",
+            "phone": "3108513655",
+            "email": "juanmahecha.macias@gmail.com"
+        }
+    ),
+    session: Session = Depends(db.get_session),
+):
+    
+    response = user_services.update_user(session, user_id, user_request)   
+    if response.status == "error":
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            content=asdict(response)
+        )
+    return JSONResponse(
+            status_code=status.HTTP_200_OK, 
+            content=asdict(response)
+    )
+
+
+@router.delete(
+    "/user/{user_id}", 
+    response_model=general_httpmodels.GeneralResponse,
+    responses={
+        200: {"description": "User found", "content":  {"application/json": {"example":{"status":"error","message":"User deleted."}}}},
+        400: {"description": "User not found", "content":  {"application/json": {"example":{"status":"error","message":"User not found."}}}},
+
+    }
+)
+
+def get_user(
+    user_id: int,
+    session: Session = Depends(db.get_session),
+):
+    response = user_services.delete_user_by_id(session, user_id)   
+    if response.status == "error":
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, 
             content=asdict(response)

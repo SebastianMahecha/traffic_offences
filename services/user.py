@@ -1,5 +1,6 @@
 
 import httpmodels.user as user_httpmodels
+import httpmodels.general as general_httpmodels
 import models.user as user_models
 from sqlmodel import select
 import config.db as db
@@ -46,15 +47,7 @@ def create_user(session, user_request):
             message = "Email empty.",
             user = None
         )
-    '''
-        user = user_models.User(
-            first_name = user_request.first_name,
-            last_name = user_request.last_name,
-            address = user_request.address,
-            phone = user_request.phone,
-            email = user_request.email,
-        )
-    '''
+    
     user = user_models.User(**user_request.dict())
   
     session.add(user)
@@ -69,3 +62,53 @@ def create_user(session, user_request):
         user = user
     )
   
+
+def update_user(session, user_id, user_request):
+    
+    user = session.get(user_models.User, user_id)
+    
+    if not user:
+        return user_httpmodels.UserResponse(
+                status = "error",
+                message = "user not found.",
+                user = None
+            )
+    
+    if user_request.email == "":
+        return user_httpmodels.UserResponse(
+            status = "error",
+            message = "Email empty.",
+            user = None
+        )
+  
+    user.first_name = user_request.first_name
+    user.last_name = user_request.last_name
+    user.address = user_request.address
+    user.phone = user_request.phone
+    user.email = user_request.email
+
+    session.commit()
+        
+    session.refresh(user)
+    
+    return  user_httpmodels.UserResponse(
+        status = "success",
+        message = "",
+        user = user
+    )
+  
+
+def delete_user_by_id(session, user_id):
+    
+    user = session.get(user_models.User, user_id)
+    if not user:
+        return general_httpmodels.GeneralResponse(
+           status =  "error",
+           message = "User not found."
+        )
+    session.delete(user)
+    session.commit()
+    return  general_httpmodels.GeneralResponse(
+        status = "success",
+        message = "User deleted"
+    )
