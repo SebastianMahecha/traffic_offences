@@ -5,7 +5,7 @@ from sqlmodel import SQLModel
 from alembic import context
 from dotenv import load_dotenv
 import os 
-from models.user import *
+from entities.user import *
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")

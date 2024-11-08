@@ -1,7 +1,7 @@
 
 from typing import List
 from dataclasses import dataclass
-import models.user as user_models
+import entities.user as user_models
 from typing import Optional
 from pydantic import BaseModel, Field
 

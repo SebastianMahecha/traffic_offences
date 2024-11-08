@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 import config.db as db
 import routes.user as user_routes
+import routes.machine_learning as machine_learning_routes
 import uvicorn
 
 app = FastAPI()
 
 app.include_router(user_routes.router)
+app.include_router(machine_learning_routes.router)
 
 # Create the database tables
 @app.on_event("startup")

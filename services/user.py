@@ -1,7 +1,7 @@
 
 import httpmodels.user as user_httpmodels
 import httpmodels.general as general_httpmodels
-import models.user as user_models
+import entities.user as user_models
 from sqlmodel import select
 import config.db as db
 

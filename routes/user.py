@@ -132,7 +132,7 @@ def update_user(
     }
 )
 
-def get_user(
+def delete_user(
     user_id: int,
     session: Session = Depends(db.get_session),
 ):
